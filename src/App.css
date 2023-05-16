@@ -1,0 +1,328 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: MuseoSans100;
+    src: url("./assets/fonts/MuseoSans-100.otf") format("opentype");
+}
+
+@font-face {
+    font-family: MuseoSans300;
+    src: url("./assets/fonts/MuseoSans-300.otf") format("opentype");
+}
+
+@font-face {
+    font-family: MuseoSans500;
+    src: url("./assets/fonts/MuseoSans_500.otf") format("opentype");
+}
+
+@font-face {
+    font-family: MuseoSans700;
+    src: url("./assets/fonts/MuseoSans_700.otf") format("opentype");
+}
+
+.css-1e2bxag-MuiDataGrid-root {
+    z-index: 0 !important;
+}
+
+.bg-hero-pattern {
+    background-image: url('./assets/images/pallete.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+
+.museosans100 {
+    font-family: 'MuseoSans100';
+}
+
+.museosans300 {
+    font-family: 'MuseoSans300';
+}
+
+.museosans500 {
+    font-family: 'MuseoSans500';
+}
+
+.museosans700 {
+    font-family: 'MuseoSans700';
+}
+
+.roboto {
+    font-family: 'Roboto', sans-serif;
+}
+
+.color-dark {
+    color: #495057;
+}
+
+.color-fake {
+    color: #000000DE
+}
+
+.footer-bg {
+    background: rgba(29, 43, 77, 0.7);
+}
+
+.search {
+    border-bottom: 1px solid rgba(0, 0, 0, .42) !important;
+    color: #6b7280;
+}
+
+.search:focus-within {
+    border-bottom: 1px solid #1976d2 !important;
+}
+.search:focus {
+    outline: none;
+}
+
+.css-1e2bxag-MuiDataGrid-root .MuiDataGrid-columnHeader:focus,
+.css-1e2bxag-MuiDataGrid-root .MuiDataGrid-cell:focus {
+    outline: none !important;
+}
+
+.icons {
+    width: 37px;
+    height: 37px;
+}
+
+#file-upload-button {
+    display: none !important;
+}
+
+
+/* .css-79ws1d-MuiModal-root {
+    z-index: 1600 !important;
+} */
+
+.css-1wf8b0h-MuiTabs-flexContainer {
+    gap: 40px !important;
+}
+.MuiModal-root .css-8ndowl {
+    z-index: 25000 !important;
+}
+
+.css-1wf8b0h-MuiTabs-flexContainer {
+    gap: 40px !important;
+}
+
+.swal2-container {
+    z-index: 50000 !important;
+}
+
+.whole {
+    background-color: black;
+    opacity: 0.5;
+    z-index: 25000;
+}
+
+.lds-roller {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.lds-roller div {
+    animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    transform-origin: 40px 40px;
+}
+
+.lds-roller div:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    margin: -4px 0 0 -4px;
+}
+
+.lds-roller div:nth-child(1) {
+    animation-delay: -0.036s;
+}
+
+.lds-roller div:nth-child(1):after {
+    top: 63px;
+    left: 63px;
+}
+
+.lds-roller div:nth-child(2) {
+    animation-delay: -0.072s;
+}
+
+.lds-roller div:nth-child(2):after {
+    top: 68px;
+    left: 56px;
+}
+
+.lds-roller div:nth-child(3) {
+    animation-delay: -0.108s;
+}
+
+.lds-roller div:nth-child(3):after {
+    top: 71px;
+    left: 48px;
+}
+
+.lds-roller div:nth-child(4) {
+    animation-delay: -0.144s;
+}
+
+.lds-roller div:nth-child(4):after {
+    top: 72px;
+    left: 40px;
+}
+
+.lds-roller div:nth-child(5) {
+    animation-delay: -0.18s;
+}
+
+.lds-roller div:nth-child(5):after {
+    top: 71px;
+    left: 32px;
+}
+
+.lds-roller div:nth-child(6) {
+    animation-delay: -0.216s;
+}
+
+.lds-roller div:nth-child(6):after {
+    top: 68px;
+    left: 24px;
+}
+
+.lds-roller div:nth-child(7) {
+    animation-delay: -0.252s;
+}
+
+.lds-roller div:nth-child(7):after {
+    top: 63px;
+    left: 17px;
+}
+
+.lds-roller div:nth-child(8) {
+    animation-delay: -0.288s;
+}
+
+.lds-roller div:nth-child(8):after {
+    top: 56px;
+    left: 12px;
+}
+
+@keyframes lds-roller {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.css-11ghgbe-MuiButtonBase-root-MuiIconButton-root:hover {
+    background-color: transparent !important;
+}
+
+.css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input:focus {
+    background-color: transparent !important;
+}
+
+.css-zs29tv-MuiInputBase-root-MuiInput-root-MuiSelect-root:hover:not(.Mui-disabled, .Mui-error):before, .search:hover{
+    border-bottom: 1px solid rgba(0, 0, 0, 0.87) !important;
+}
+
+.MuiTabs-flexContainer {
+    justify-content: center !important;
+    gap: 40px !important;
+}
+
+[type='text']:focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus {
+    --tw-ring-color: transparent !important;
+}
+
+*, ::before, ::after {
+    --tw-ring-color: transparent !important;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+  }
+
+  /* Tooltip text */
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 100000;
+  }
+
+  /* Show the tooltip text when you mouse over the tooltip container */
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+
+  @keyframes arrow-down {
+    0% {
+        transform: translateX(0px) translateY(0px);
+    }
+
+    50% {
+        opacity: 0;
+        transform: translateX(-22px) translateY(22px);
+    }
+
+    51% {
+        transform: translateX(22px) translateY(-22px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0px) translateY(0px);
+    }
+
+}
+
+@keyframes arrow-up {
+    0% {
+        transform: translateX(0px) translateY(0px);
+    }
+
+    50% {
+        opacity: 0;
+        transform: translateX(22px) translateY(-22px);
+    }
+
+    51% {
+        transform: translateX(-22px) translateY(22px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0px) translateY(0px);
+    }
+
+}
+
+.arrow-down {
+    animation: arrow-down 1.5s infinite;
+    animation-name: arrow-down;
+}
+
+.arrow-up {
+    animation: arrow-up 1.5s infinite;
+    animation-name: arrow-up;
+}

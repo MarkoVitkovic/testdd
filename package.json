@@ -1,0 +1,75 @@
+{
+  "name": "pallet-new-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@headlessui/react": "^1.4.2",
+    "@mui/icons-material": "^5.11.9",
+    "@mui/lab": "^5.0.0-alpha.120",
+    "@mui/material": "^5.11.8",
+    "@mui/x-data-grid": "^5.17.26",
+    "@mui/x-date-pickers": "latest",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.21.1",
+    "date-fns": "latest",
+    "dayjs": "latest",
+    "i18next": "^22.4.9",
+    "i18next-browser-languagedetector": "^7.0.1",
+    "i18next-http-backend": "^2.1.1",
+    "immutability-helper": "^3.1.1",
+    "latest": "^0.2.0",
+    "mui-file-input": "^2.0.0",
+    "multiselect-react-dropdown": "^2.0.25",
+    "pusher-js": "^8.0.2",
+    "query-string": "^8.1.0",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-bootstrap": "^2.7.2",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^12.1.4",
+    "react-router-dom": "^6.8.1",
+    "react-scripts": "5.0.1",
+    "sweetalert2": "^11.7.0",
+    "swr": "^2.0.3",
+    "watch": "^1.0.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "watch": "watch 'npm run start' ./src"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.2",
+    "postcss": "^8.4.6",
+    "postcss-loader": "^7.0.2",
+    "tailwindcss": "^3.0.19"
+  }
+}

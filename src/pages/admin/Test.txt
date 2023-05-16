@@ -1,0 +1,378 @@
+import React, { useState, useEffect } from 'react'
+
+import { Tooltip } from '@mui/material'
+import ClearIcon from "@mui/icons-material/Clear"
+import IconButton from "@mui/material/IconButton"
+import InputLabel from '@mui/material/InputLabel'
+import { useTranslation } from "react-i18next"
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import dayjs from 'dayjs'
+import Pusher from 'pusher-js'
+import { Link } from 'react-router-dom'
+
+import AppLayout from '../../components/Layouts/AppLayout'
+import AddButton from '../../components/AddButton'
+import CreateSalesOrder from '../../components/sales_purchase_orders/CreateSalesOrder'
+import Loading from '../../components/Loading'
+import { useStateContext } from '../../context/ContextProvider'
+import axios from '../../lib/axios'
+import DailyBoardTableSales from '../../components/DailyBoardTableSales'
+
+
+const SalesOrder = () => {
+
+    const { t } = useTranslation()
+    const { choosesite, setChoosesite, config } = useStateContext()
+
+    const [open, setOpen] = useState(false)
+    const [searchStatus, setSearchStatus] = useState('')
+    const [searchDate, setSearchDate] = useState('')
+    const [searchStatus1, setSearchStatus1] = useState('')
+    const [searchDate1, setSearchDate1] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [salesOrders, setSalesOrders] = useState([])
+    const [salesOrderStatuses, setSalesOrderStatuses] = useState([])
+    const [salesOrderStatusesFuture, setSalesOrderStatusesFuture] = useState([])
+    const [salesOrderDates, setSalesOrderDates] = useState([])
+    const [salesOrderDatesFuture, setSalesOrderDatesFuture] = useState([])
+    const [unfilteredSalesOrders, setUnfilteredSalesOrders] = useState([])
+    const [unfilteredSalesOrdersFuture, setUnfilteredSalesOrdersFuture] = useState([])
+
+
+    useEffect(() => {
+        const pusher = new Pusher('b5344b63ba9e360efbcc', {
+            cluster: 'mt1',
+            encrypted: true,
+        })
+        const channeldelete = pusher.subscribe('salesorder-deleted')
+        const channelcreate = pusher.subscribe('salesorder-created')
+        const channelupdate = pusher.subscribe('salesorder-updated')
+
+        channeldelete.bind('salesorder-deleted-event', data => {
+            setSalesOrders((prev) => {
+                const item = prev.find((i) => i.id === data.id)
+                const exItem = prev.filter((i) => i.id !== item.id)
+                return exItem
+            })
+        })
+
+        channelcreate.bind('salesorder-created-event', data => {
+            getSalesOrder(data.id, 'created')
+        })
+
+        channelupdate.bind('salesorder-updated-event', data => {
+            getSalesOrder(data.id, 'updated')
+        })
+    }, [])
+
+    useEffect(() => {
+        setChoosesite(localStorage.getItem('site'))
+    }, [])
+
+    useEffect(() => {
+        if (choosesite) {
+            getSalesorders()
+            // The following two methods are run to fetch order statuses and dates regardless of filters applied
+            getUnfilteredSalesOrders()
+            getUnfilteredSalesOrdersFuture()
+        }
+    }, [choosesite])
+
+    useEffect(() => {
+        getSalesorders()
+
+        if (searchStatus1 != '' && searchDate1 == '') {
+            const filteredSalesOrders = unfilteredSalesOrders.filter((order) => order.so_status_id === searchStatus1); // Filter by status
+
+            setSalesOrderDates(getSalesOrderDates(filteredSalesOrders))
+        } else if (searchStatus1 == '' && searchDate1 != '') {
+            const filteredSalesOrders = unfilteredSalesOrders.filter((order) => order.requested_delivery_date === searchDate1); // Filter by date
+
+            setSalesOrderStatuses(getSalesOrderStatuses(filteredSalesOrders))
+        } else if (searchStatus1 != '' && searchDate1 != '') {
+            const filteredSalesOrders = unfilteredSalesOrders.filter((order) => order.so_status_id === searchStatus1 && order.requested_delivery_date === searchDate1); // Filter by status & date
+
+            setSalesOrderDates(getSalesOrderDates(filteredSalesOrders))
+            setSalesOrderStatuses(getSalesOrderStatuses(filteredSalesOrders))
+        } else {
+            setSalesOrderDates(getSalesOrderDates(unfilteredSalesOrders))
+            setSalesOrderStatuses(getSalesOrderStatuses(unfilteredSalesOrders))
+        }
+    }, [searchStatus1, searchDate1])
+
+    useEffect(() => {
+
+        if (searchStatus != '' && searchDate == '') {
+            const filteredSalesOrders = unfilteredSalesOrdersFuture.filter((order) => order.so_status_id === searchStatus); // Filter by status
+
+            setSalesOrderDatesFuture(getSalesOrderDates(filteredSalesOrders))
+        } else if (searchStatus == '' && searchDate != '') {
+            const filteredSalesOrders = unfilteredSalesOrdersFuture.filter((order) => order.requested_delivery_date === searchDate); // Filter by date
+
+            setSalesOrderStatusesFuture(getSalesOrderStatuses(filteredSalesOrders))
+        } else if (searchStatus != '' && searchDate != '') {
+            const filteredSalesOrders = unfilteredSalesOrdersFuture.filter((order) => order.so_status_id === searchStatus && order.requested_delivery_date === searchDate); // Filter by status & date
+
+            setSalesOrderDatesFuture(getSalesOrderDates(filteredSalesOrders))
+            setSalesOrderStatusesFuture(getSalesOrderStatuses(filteredSalesOrders))
+        } else {
+            setSalesOrderDatesFuture(getSalesOrderDates(unfilteredSalesOrdersFuture))
+            setSalesOrderStatusesFuture(getSalesOrderStatuses(unfilteredSalesOrdersFuture))
+        }
+    }, [searchStatus, searchDate])
+
+    const getSalesOrder = async (id, state) => {
+
+        await axios.get(`/api/sales-orders/${id}`, config)
+            .then(res => {
+                const salesOrder = res.data
+                if (state === 'created') setSalesOrders((prev) => [...prev, salesOrder])
+
+                if (state === 'updated') setSalesOrders((prev) => {
+                    const item = prev.find((i) => i.id === id)
+                    const exItem = prev.filter((i) => i.id !== item.id)
+                    const vab = [...exItem, salesOrder]
+                    return vab
+                })
+            })
+
+    }
+
+
+    const getSalesorders = async () => {
+        const date = dayjs(searchDate1).format('YYYY-MM-DD')
+        await axios.get(`/api/list-orders?type=sales&site_id=${choosesite}&status_id=${searchStatus1}&requested_date=${date}`, config)
+            .then(res => {
+                const salesOrders = res.data
+                setSalesOrders(salesOrders)
+            })
+    }
+
+    const getUnfilteredSalesOrders = async () => {
+        await axios.get(`/api/list-orders?type=sales&date=pastToday&site_id=${choosesite}`, config)
+            .then(res => {
+                const orders = res.data;
+                const statuses = getSalesOrderStatuses(orders)
+                const dates = getSalesOrderDates(orders)
+                setSalesOrderStatuses(statuses)
+                setSalesOrderDates(dates)
+                setUnfilteredSalesOrders(orders)
+            })
+    }
+
+
+    const getUnfilteredSalesOrdersFuture = async () => {
+        await axios.get(`/api/list-orders?type=sales&date=future&site_id=${choosesite}`, config)
+            .then(res => {
+                const futureOrders = res.data;
+                const futureStatuses = getSalesOrderStatuses(futureOrders)
+                const futureDates = getSalesOrderDates(futureOrders)
+                setSalesOrderStatusesFuture(futureStatuses)
+                setSalesOrderDatesFuture(futureDates)
+                setUnfilteredSalesOrdersFuture(futureOrders)
+            })
+    }
+
+    const getSalesOrderStatuses = (salesOrders) => {
+        let statuses = [];
+
+        salesOrders.forEach(order => {
+            let newStatus = {
+                id: order.so_status_id,
+                name: order.so_status_name,
+            };
+
+            let statusExists = statuses.some(function (status) {
+                return status.id === newStatus.id
+            });
+
+            if (!statusExists) {
+                statuses.push(newStatus)
+            }
+        });
+
+        statuses.sort((a, b) => {
+            return a.id - b.id
+        });
+
+        return statuses;
+    }
+
+    const getSalesOrderDates = (salesOrders) => {
+        let dates = [];
+
+        salesOrders.forEach(order => {
+            let newDate = order.requested_delivery_date;
+
+            let dateExists = dates.includes(newDate);
+
+            if (!dateExists) {
+                dates.push(newDate)
+            }
+        });
+
+        dates.sort();
+
+        return dates;
+    }
+
+    const handleOpen = () => {
+        setOpen(!open)
+    }
+
+    const handleClearStatus = () => {
+        setSearchStatus('')
+
+        setSalesOrderDatesFuture(getSalesOrderDates(unfilteredSalesOrdersFuture))
+    }
+
+    const handleClearStatus1 = () => {
+        setSearchStatus1('')
+
+        setSalesOrderDates(getSalesOrderDates(unfilteredSalesOrders))
+    }
+
+    const handleClearDate = () => {
+        setSearchDate('')
+
+        setSalesOrderStatusesFuture(getSalesOrderStatuses(unfilteredSalesOrdersFuture))
+    }
+
+    const handleClearDate1 = () => {
+        setSearchDate1('')
+
+        setSalesOrderStatuses(getSalesOrderStatuses(unfilteredSalesOrders))
+    }
+
+    return (
+        <>
+
+            {isLoading ? <Loading /> : ''}
+            <AppLayout>
+                <div className='flex justify-between'>
+                    <div className='p-5 w-full'>
+                        <div className='pb-5 shadow-md mb-2 rounded-md'>
+                            <div className='flex justify-between items-center'>
+                                <div className='flex justify-start gap-4 items-center'>
+                                    <p className='font-bold roboto pl-5 color-fake'>{t('todays_sales_orders')}</p>
+                                    <Tooltip title={t('create_new_so')} placement='right'>
+                                        <div>
+                                            <AddButton className="text-[#336195]" onClick={handleOpen}><i className="fa-solid fa-plus"></i></AddButton>
+                                        </div>
+                                    </Tooltip>
+                                </div>
+                                <div className='pr-5'>
+                                    <span style={{ transform: 'rotate(45deg)', color: '#336195', fontSize: '22px' }} className="flex items-center justify-center">
+                                        <i className="fa-solid fa-arrow-up-long"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div className='flex justify-between items-end w-full'>
+                                <div className='px-5 pt-5 w-full'>
+                                    <FormControl variant="standard" sx={{ width: 'inherit' }}>
+                                        <InputLabel id="demo-simple-select-standard-label">{t('search_by_status')}</InputLabel>
+                                        <Select
+                                            value={searchStatus1}
+                                            onChange={e => setSearchStatus1(e.target.value)}
+                                            label="Search role"
+                                            sx={{ ".MuiSelect-iconStandard": { display: searchStatus1 ? 'none !important' : '' }, "&.Mui-focused .MuiIconButton-root": { color: 'rgba(0,0,0,.42)' } }}
+                                            endAdornment={searchStatus1 ? (<IconButton sx={{ visibility: searchStatus1 ? "visible" : "hidden", padding: '0' }} onClick={handleClearStatus1}><ClearIcon /></IconButton>) : false}
+                                        >
+                                            {salesOrderStatuses.map((status) => (
+                                                <MenuItem key={status.id} value={status.id}>{status.name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
+                                <div className='px-5 pt-5 w-full'>
+                                    <FormControl variant="standard" sx={{ width: 'inherit' }}>
+                                        <InputLabel id="demo-simple-select-standard-label">{t('search_by_request_delivery_date')}</InputLabel>
+                                        <Select
+                                            value={searchDate1}
+                                            onChange={e => setSearchDate1(e.target.value)}
+                                            label="Search Past Or Present Date"
+                                            sx={{ ".MuiSelect-iconStandard": { display: searchDate1 ? 'none !important' : '' }, "&.Mui-focused .MuiIconButton-root": { color: 'rgba(0,0,0,.42)' } }}
+                                            endAdornment={searchDate1 ? (<IconButton sx={{ visibility: searchDate1 ? "visible" : "hidden", padding: '0' }} onClick={handleClearDate1}><ClearIcon /></IconButton>) : false}
+                                        >
+                                            {salesOrderDates.map((date) => (
+                                                <MenuItem key={date} value={date}>{date}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <DailyBoardTableSales items={salesOrders.filter((item) => new Date(dayjs(item.requested_delivery_date)) <= new Date(dayjs()))} />
+                        </div>
+                    </div>
+                    <div className='p-5 w-full'>
+                        <div className='pb-5 shadow-md mb-2 rounded-md'>
+                            <div className='flex justify-between items-center gap-4 '>
+                                <div className='flex justify-start gap-4 items-center'>
+                                    <p className='font-bold roboto pl-5 color-fake'>{t('future_sales_orders')}</p>
+                                    <Tooltip title={t('create_new_so')} placement='right'>
+                                        <div>
+                                            <AddButton className="text-[#336195]" onClick={handleOpen}><i className="fa-solid fa-plus"></i></AddButton>
+                                        </div>
+                                    </Tooltip>
+                                </div>
+                                <div className='pr-5'>
+                                    <span style={{ transform: 'rotate(45deg)', color: '#336195', fontSize: '22px' }} className="flex items-center justify-center">
+                                        <i className="fa-solid fa-arrow-up-long"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div className='flex justify-between items-end w-full'>
+                                <div className='px-5 pt-5 w-full'>
+                                    <FormControl variant="standard" sx={{ width: 'inherit' }}>
+                                        <InputLabel id="demo-simple-select-standard-label">{t('search_by_status')}</InputLabel>
+                                        <Select
+                                            value={searchStatus}
+                                            onChange={e => setSearchStatus(e.target.value)}
+                                            label="Search role"
+                                            sx={{ ".MuiSelect-iconStandard": { display: searchStatus ? 'none !important' : '' }, "&.Mui-focused .MuiIconButton-root": { color: 'rgba(0,0,0,.42)' } }}
+                                            endAdornment={searchStatus ? (<IconButton sx={{ visibility: searchStatus ? "visible" : "hidden", padding: '0' }} onClick={handleClearStatus}><ClearIcon /></IconButton>) : false}
+                                        >
+                                            {salesOrderStatusesFuture.map((status) => (
+                                                <MenuItem key={status.id} value={status.id}>{status.name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
+                                <div className='px-5 pt-5 w-full'>
+                                    <FormControl variant="standard" sx={{ width: 'inherit' }}>
+                                        <InputLabel id="demo-simple-select-standard-label">{t('search_by_request_delivery_date')}</InputLabel>
+                                        <Select
+                                            value={searchDate}
+                                            onChange={e => setSearchDate(e.target.value)}
+                                            label="Search Past Or Present Date"
+                                            sx={{ ".MuiSelect-iconStandard": { display: searchDate ? 'none !important' : '' }, "&.Mui-focused .MuiIconButton-root": { color: 'rgba(0,0,0,.42)' } }}
+                                            endAdornment={searchDate ? (<IconButton sx={{ visibility: searchDate ? "visible" : "hidden", padding: '0' }} onClick={handleClearDate}><ClearIcon /></IconButton>) : false}
+                                        >
+                                            {salesOrderDatesFuture.map((date) => (
+                                                <MenuItem key={date} value={date}>{date}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <DailyBoardTableSales items={salesOrders.filter((item) => new Date(dayjs(item.requested_delivery_date)) > new Date(dayjs()))} />
+                        </div>
+                    </div>
+                </div>
+                <CreateSalesOrder open={open} handleOpen={handleOpen} setIsLoading={setIsLoading} />
+            </AppLayout>
+
+        </>
+    )
+}
+
+export default SalesOrder
+

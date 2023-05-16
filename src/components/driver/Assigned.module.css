@@ -1,0 +1,15 @@
+.shipment {
+    background-color: #336195 !important;
+}
+
+.collection {
+    background-color: #b7472a !important;
+}
+
+.confirm {
+    background-color: rgb(3 105 161) !important;
+}
+
+.deny {
+    background-color: rgb(156 163 175) !important;
+}
